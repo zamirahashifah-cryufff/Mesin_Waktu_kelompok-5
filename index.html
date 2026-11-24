@@ -1,0 +1,2830 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mesin Waktu – Terjebak di Mesin Waktu</title>
+  <style>
+    /* =========================================================================
+       1. THEME VARIABLES & BASE RESET
+       ========================================================================= */
+    :root {
+      --bg: #17120d;
+      --pn: #241b12;
+      --ln: #4d3b25;
+      --tx: #f1e6cf;
+      --mu: #b3a283;
+      --br: #d4a037;
+      --co: #e0694b;
+      --te: #5fb3a6;
+      --gr: #9fd58a;
+      --in: #120e0a;
+      --ink: #1a1208;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) {
+        --bg: #eadcbd;
+        --pn: #f8efd9;
+        --ln: #9c8460;
+        --tx: #2a2016;
+        --mu: #6e5c42;
+        --br: #9a6a10;
+        --co: #a83a22;
+        --te: #1f6f66;
+        --gr: #3d7a2a;
+        --in: #fffaf0;
+      }
+    }
+
+    :root[data-theme="light"] {
+      --bg: #eadcbd;
+      --pn: #f8efd9;
+      --ln: #9c8460;
+      --tx: #2a2016;
+      --mu: #6e5c42;
+      --br: #9a6a10;
+      --co: #a83a22;
+      --te: #1f6f66;
+      --gr: #3d7a2a;
+      --in: #fffaf0;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+               env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+      background: var(--bg);
+      background-image: repeating-linear-gradient(
+        0deg,
+        transparent 0 31px,
+        rgba(128, 100, 60, 0.09) 31px 32px
+      );
+      color: var(--tx);
+      font-family: "Trebuchet MS", Verdana, sans-serif;
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    /* =========================================================================
+       2. LAYOUT & TYPOGRAPHY
+       ========================================================================= */
+    .w {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 860px;
+      margin: auto;
+      padding: clamp(12px, 2.5vw, 24px) clamp(12px, 3vw, 24px) 48px;
+    }
+
+    h1, h2, h3, .sf {
+      font-family: Georgia, "Palatino Linotype", serif;
+    }
+
+    h2 {
+      font-size: clamp(1.6rem, 4.5vw, 2.7rem);
+      margin: 6px 0 10px;
+      line-height: 1.12;
+    }
+
+    h3 {
+      margin: 0 0 6px;
+    }
+
+    .mu {
+      color: var(--mu);
+    }
+
+    .eb {
+      font-size: 0.72rem;
+      letter-spacing: 3px;
+      color: var(--br);
+      font-weight: 700;
+    }
+
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px 14px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand b {
+      font-family: Georgia, serif;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      letter-spacing: 1px;
+    }
+
+    .brand small {
+      display: block;
+      color: var(--mu);
+      font-size: 0.68rem;
+      letter-spacing: 2px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .gear {
+      width: clamp(32px, 5vw, 42px);
+      height: clamp(32px, 5vw, 42px);
+      animation: spin 14s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes rv {
+      to { transform: rotate(-360deg); }
+    }
+
+    .sc {
+      display: none;
+      animation: in 0.3s;
+    }
+
+    .sc.on {
+      display: block;
+    }
+
+    @keyframes in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+    }
+
+    .pn, .bar {
+      background: color-mix(in srgb, var(--pn) 90%, transparent);
+      backdrop-filter: blur(2px);
+      border: 2px solid var(--ln);
+      border-radius: 8px;
+    }
+
+    .pn {
+      padding: clamp(14px, 3vw, 24px);
+      margin-top: 14px;
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    /* =========================================================================
+       3. BUTTONS & FORM CONTROLS
+       ========================================================================= */
+    .btn {
+      cursor: pointer;
+      border: 2px solid var(--ink);
+      background: var(--br);
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: 6px;
+      box-shadow: 0 4px 0 var(--ink);
+      margin: 12px 10px 4px 0;
+      transition: transform 0.1s, box-shadow 0.1s, filter 0.15s;
+      min-height: 42px;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 var(--ink);
+    }
+
+    .btn.s {
+      background: var(--pn);
+      color: var(--tx);
+      border-color: var(--ln);
+      box-shadow: 0 4px 0 var(--ln);
+    }
+
+    .btn.sm {
+      padding: 6px 12px;
+      margin: 0;
+      min-height: 36px;
+      font-size: 0.85rem;
+      box-shadow: 0 3px 0 var(--ink);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .lv {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 145px), 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .lv label {
+      border: 2px solid var(--ln);
+      border-radius: 6px;
+      padding: 10px 12px;
+      cursor: pointer;
+      background: var(--in);
+      transition: border-color 0.15s;
+    }
+
+    .lv input {
+      display: none;
+    }
+
+    .lv input:checked + span {
+      color: var(--br);
+    }
+
+    .lv label:has(input:checked) {
+      border-color: var(--br);
+    }
+
+    .lv b {
+      display: block;
+    }
+
+    /* =========================================================================
+       4. GAME HUD, PORTAL & CLOCK
+       ========================================================================= */
+    .port {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(12px, 3vw, 24px);
+      margin-top: 12px;
+    }
+
+    .port svg {
+      width: clamp(86px, 16vw, 132px);
+      height: clamp(86px, 16vw, 132px);
+      flex: none;
+      filter: drop-shadow(0 0 10px rgba(212, 160, 55, 0.35));
+    }
+
+    .vx {
+      transform-origin: 100px 100px;
+      animation: spin 7s linear infinite;
+    }
+
+    .h1, .h2 {
+      transform-origin: 100px 100px;
+      animation: rv calc(var(--sp, 4s) * 2) linear infinite;
+    }
+
+    .h2 {
+      animation-duration: calc(var(--sp, 4s) * 0.4);
+    }
+
+    .yr {
+      font-family: ui-monospace, Menlo, monospace;
+    }
+
+    .yr small {
+      display: block;
+      color: var(--mu);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+    }
+
+    .yr b {
+      font-size: clamp(1.75rem, 5vw, 2.4rem);
+      color: var(--br);
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px 16px;
+      align-items: center;
+      margin-top: 12px;
+      padding: 12px 14px;
+    }
+
+    .clock {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      flex: none;
+    }
+
+    .clock svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .clock b {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.95rem;
+    }
+
+    .clock.warn b {
+      color: var(--co);
+      animation: bl 0.6s infinite;
+    }
+
+    @keyframes bl {
+      50% { opacity: 0.4; }
+    }
+
+    .lft {
+      min-width: 0;
+    }
+
+    .plates {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+
+    .plates i {
+      font-style: normal;
+      width: 30px;
+      height: 30px;
+      border: 2px solid var(--ln);
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: var(--mu);
+      font-family: Georgia, serif;
+    }
+
+    .plates i.d {
+      background: var(--br);
+      color: var(--ink);
+      border-color: var(--ink);
+    }
+
+    .plates i.c {
+      border-color: var(--br);
+      color: var(--br);
+    }
+
+    .crys-box {
+      text-align: right;
+    }
+
+    .dl {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      font-weight: 700;
+      font-family: ui-monospace, monospace;
+      animation: fl 1.1s forwards;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .dl.p { color: var(--gr); }
+    .dl.m { color: var(--co); }
+
+    @keyframes fl {
+      to {
+        transform: translate(-50%, -26px);
+        opacity: 0;
+      }
+    }
+
+    /* =========================================================================
+       5. QUESTION FLOW & OPTIONS
+       ========================================================================= */
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--ln);
+      border-radius: 4px;
+      padding: 2px 9px;
+      font-size: 0.75rem;
+      color: var(--br);
+      margin: 0 6px 6px 0;
+      background: var(--in);
+    }
+
+    .flow {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+
+    .nd {
+      background: var(--in);
+      border: 2px solid var(--ln);
+      border-radius: 6px;
+      padding: 6px 12px;
+      text-align: center;
+      min-width: 68px;
+      max-width: 100%;
+    }
+
+    .nd small {
+      display: block;
+      color: var(--mu);
+      font-size: 0.7rem;
+    }
+
+    .nd b {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 1.1rem;
+      word-break: break-word;
+    }
+
+    .nd.dn { border-color: var(--gr); }
+    .nd.dn b { color: var(--gr); }
+    .nd.cur { border-color: var(--br); }
+    .ar { color: var(--mu); }
+
+    .key {
+      background: var(--in);
+      border-left: 4px solid var(--br);
+      padding: 8px 12px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.88rem;
+      line-height: 1.8;
+      margin: 8px 0;
+      overflow-x: auto;
+      word-break: break-word;
+    }
+
+    .qt {
+      font-size: clamp(1rem, 2.5vw, 1.18rem);
+      font-weight: 700;
+      margin: 10px 0;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    input.t {
+      flex: 1 1 160px;
+      min-width: 0;
+      padding: 11px;
+      background: var(--in);
+      border: 2px solid var(--ln);
+      border-radius: 6px;
+      color: var(--tx);
+      font: inherit;
+      font-size: 1.12rem;
+      font-family: ui-monospace, Menlo, monospace;
+    }
+
+    input.t:focus {
+      outline: 0;
+      border-color: var(--br);
+    }
+
+    .opts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .op {
+      background: var(--in);
+      border: 2px solid var(--ln);
+      color: var(--tx);
+      border-radius: 6px;
+      padding: 13px 10px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 3px 0 var(--ln);
+      word-break: break-word;
+      min-height: 48px;
+    }
+
+    .op:hover:not(:disabled) {
+      border-color: var(--br);
+    }
+
+    .op.c {
+      border-color: var(--gr);
+      background: rgba(120, 190, 100, 0.2);
+    }
+
+    .op.w {
+      border-color: var(--co);
+      background: rgba(224, 105, 75, 0.18);
+      animation: sh 0.3s;
+    }
+
+    @keyframes sh {
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+
+    .fb { margin-top: 12px; }
+    .ok { color: var(--gr); }
+    .no { color: var(--co); }
+
+    /* =========================================================================
+       6. MODALS & GUIDE OVERLAY
+       ========================================================================= */
+    .ov {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 9;
+    }
+
+    .ov.on {
+      display: flex;
+    }
+
+    .md {
+      background: var(--bg);
+      border: 3px solid var(--br);
+      border-radius: 8px;
+      max-width: min(92vw, 560px);
+      width: 100%;
+      padding: clamp(16px, 3vw, 24px);
+      max-height: 88dvh;
+      overflow-y: auto;
+    }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    .dots i {
+      width: 9px;
+      height: 9px;
+      border-radius: 2px;
+      background: var(--ln);
+    }
+
+    .dots i.on {
+      background: var(--br);
+    }
+
+    /* =========================================================================
+       7. BACKGROUND & TRANSITION FX
+       ========================================================================= */
+    #fx {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    #fx:after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 45%, transparent 35%, rgba(0, 0, 0, 0.4) 100%);
+    }
+
+    body.urg #fx:after {
+      animation: ug 1s infinite;
+    }
+
+    @keyframes ug {
+      50% { box-shadow: inset 0 0 130px rgba(224, 105, 75, 0.6); }
+    }
+
+    .ring {
+      position: absolute;
+      left: 50%;
+      top: 45%;
+      width: 40vmin;
+      height: 40vmin;
+      margin: -20vmin 0 0 -20vmin;
+      border: 2px solid var(--br);
+      border-radius: 50%;
+      opacity: 0;
+      animation: rg var(--sp, 4s) linear infinite;
+    }
+
+    @keyframes rg {
+      0% { transform: scale(0.1); opacity: 0; }
+      20% { opacity: 0.45; }
+      100% { transform: scale(4.5); opacity: 0; }
+    }
+
+    .bg {
+      position: absolute;
+      opacity: 0.13;
+      animation: spin 40s linear infinite;
+    }
+
+    .bg.r {
+      animation-direction: reverse;
+      right: -110px;
+      bottom: -110px;
+      width: 380px;
+    }
+
+    .pt {
+      position: absolute;
+      bottom: -40px;
+      font-family: ui-monospace, Menlo, monospace;
+      color: var(--br);
+      opacity: 0.22;
+      animation: pf linear infinite;
+    }
+
+    @keyframes pf {
+      0% { transform: translateY(0) rotate(0) scale(0.6); }
+      100% { transform: translateY(-115vh) rotate(160deg) scale(1.5); }
+    }
+
+    body.sk .w {
+      animation: shk 0.45s;
+    }
+
+    @keyframes shk {
+      20% { transform: translate(-9px, 3px); }
+      40% { transform: translate(8px, -4px); }
+      60% { transform: translate(-5px, 2px); }
+      80% { transform: translate(4px, -2px); }
+    }
+
+    body.rw .w {
+      animation: rw 1.3s;
+    }
+
+    @keyframes rw {
+      50% {
+        filter: invert(1) hue-rotate(180deg) blur(2px);
+        transform: scale(0.95);
+      }
+    }
+
+    #flash {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    #flash.on {
+      animation: f2 0.6s;
+    }
+
+    @keyframes f2 {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    #warp {
+      position: fixed;
+      inset: 0;
+      z-index: 24;
+      pointer-events: none;
+      display: none;
+      background: repeating-conic-gradient(rgba(212, 160, 55, 0.55) 0 0.8deg, transparent 0.8deg 6deg);
+      -webkit-mask: radial-gradient(circle, transparent 8%, #000 60%);
+      mask: radial-gradient(circle, transparent 8%, #000 60%);
+    }
+
+    #warp.on {
+      display: block;
+      animation: wf 1.4s forwards;
+    }
+
+    @keyframes wf {
+      0% { transform: scale(0.4) rotate(0); opacity: 0; }
+      30% { opacity: 1; }
+      100% { transform: scale(3) rotate(45deg); opacity: 0; }
+    }
+
+    #door {
+      position: fixed;
+      inset: 0;
+      z-index: 25;
+      pointer-events: none;
+      display: none;
+    }
+
+    #door.on {
+      display: block;
+      animation: df 2.4s forwards;
+    }
+
+    @keyframes df {
+      0% { opacity: 0; }
+      8% { opacity: 1; }
+    }
+
+    #door i {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      background: var(--bg);
+      background-image: repeating-linear-gradient(
+        90deg,
+        transparent 0 38px,
+        rgba(0, 0, 0, 0.3) 38px 40px
+      );
+      border: 4px solid var(--ln);
+    }
+
+    #door .l {
+      left: 0;
+      animation: dl 2.4s forwards;
+    }
+
+    #door .r {
+      right: 0;
+      animation: dr 2.4s forwards;
+    }
+
+    @keyframes dl {
+      0%, 38% { transform: translateX(0); }
+      100% { transform: translateX(-101%); }
+    }
+
+    @keyframes dr {
+      0%, 38% { transform: translateX(0); }
+      100% { transform: translateX(101%); }
+    }
+
+    #door b {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 96px;
+      height: 96px;
+      margin: -48px;
+      border: 6px dashed var(--br);
+      border-radius: 50%;
+      z-index: 2;
+      animation: spin 0.9s linear infinite, lk 2.4s forwards;
+    }
+
+    @keyframes lk {
+      0%, 30% { opacity: 1; }
+      45%, 100% { opacity: 0; }
+    }
+
+    body.nofx #fx,
+    body.nofx #warp,
+    body.nofx #door,
+    body.nofx #flash {
+      display: none !important;
+    }
+
+    body.nofx *,
+    body.nofx *:before,
+    body.nofx *:after {
+      animation: none !important;
+      transition: none !important;
+    }
+
+    /* =========================================================================
+       8. INTRO / TITLE SCREEN (BESPOKE CHRONOMETER CHAMBER)
+       ========================================================================= */
+    #intro {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background:
+        radial-gradient(circle at 28% 45%, rgba(212, 160, 55, 0.14) 0%, transparent 48%),
+        radial-gradient(circle at 75% 20%, rgba(224, 105, 75, 0.08) 0%, transparent 45%),
+        #0b0805;
+      color: #f1e6cf;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding:
+        calc(20px + env(safe-area-inset-top, 0px))
+        calc(18px + env(safe-area-inset-right, 0px))
+        calc(20px + env(safe-area-inset-bottom, 0px))
+        calc(18px + env(safe-area-inset-left, 0px));
+      overflow-y: auto;
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    #icv {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .intro-frame {
+      position: fixed;
+      inset: clamp(8px, 1.5vw, 18px);
+      border: 1px solid rgba(212, 160, 55, 0.16);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .intro-frame:before {
+      content: "N 06°53' · E 107°36'";
+      position: absolute;
+      top: -9px;
+      left: 16px;
+      background: #0b0805;
+      padding: 0 8px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: rgba(212, 160, 55, 0.55);
+    }
+
+    .intro-stage {
+      position: relative;
+      z-index: 2;
+      max-width: 980px;
+      width: 100%;
+      margin: auto;
+      display: grid;
+      grid-template-columns: minmax(220px, 340px) minmax(0, 1fr);
+      gap: clamp(20px, 4.5vw, 56px);
+      align-items: center;
+    }
+
+    .chrono-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .chrono {
+      position: relative;
+      width: clamp(168px, 26vw, 320px);
+      height: clamp(168px, 26vw, 320px);
+      cursor: grab;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+    }
+
+    .chrono:active {
+      cursor: grabbing;
+    }
+
+    .chrono svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      filter: drop-shadow(0 18px 35px rgba(0, 0, 0, 0.75));
+    }
+
+    .c-dial {
+      transform-origin: 150px 150px;
+      transition: transform 0.08s linear;
+    }
+
+    .c-gear-a {
+      transform-origin: 150px 150px;
+      animation: spin 28s linear infinite;
+    }
+
+    .c-gear-b {
+      transform-origin: 150px 150px;
+      animation: rv 19s linear infinite;
+    }
+
+    .c-readout {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .c-year {
+      font-family: Georgia, serif;
+      font-size: clamp(1.35rem, 3.6vw, 2.75rem);
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #f6e7c4;
+      text-shadow: 0 0 18px rgba(212, 160, 55, 0.45);
+      line-height: 1;
+    }
+
+    .c-deg {
+      margin-top: 5px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: clamp(0.58rem, 1vw, 0.75rem);
+      letter-spacing: 1.5px;
+      color: #d4a037;
+    }
+
+    .c-plaque {
+      margin-top: 12px;
+      padding: 5px 12px;
+      border-top: 1px solid rgba(212, 160, 55, 0.3);
+      border-bottom: 1px solid rgba(212, 160, 55, 0.3);
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: clamp(0.62rem, 1.2vw, 0.72rem);
+      letter-spacing: 1.4px;
+      color: #b3a283;
+    }
+
+    .intro-info {
+      text-align: left;
+      min-width: 0;
+    }
+
+    .intro-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .intro-kicker {
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.72rem;
+      letter-spacing: 3px;
+      color: #e0694b;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .intro-kicker i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #e0694b;
+      box-shadow: 0 0 10px #e0694b;
+      animation: bl 0.9s infinite;
+    }
+
+    .aud-btn {
+      background: transparent;
+      border: 1px solid rgba(212, 160, 55, 0.35);
+      color: #d4a037;
+      border-radius: 4px;
+      padding: 6px 11px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 0.7rem;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .aud-btn:hover {
+      background: rgba(212, 160, 55, 0.12);
+    }
+
+    .aud-btn.on {
+      border-color: #9fd58a;
+      color: #9fd58a;
+    }
+
+    .intro-title {
+      font-family: Georgia, "Palatino Linotype", serif;
+      font-size: clamp(1.85rem, 4.6vw, 3.4rem);
+      font-weight: 700;
+      line-height: 1.07;
+      margin: 0 0 12px;
+      color: #f6ecd6;
+      letter-spacing: -0.5px;
+    }
+
+    .intro-title span {
+      color: #d4a037;
+    }
+
+    .intro-lead {
+      margin: 0 0 16px;
+      color: #bcae92;
+      font-size: clamp(0.9rem, 1.3vw + 0.5rem, 1.06rem);
+      max-width: 50ch;
+    }
+
+    .telem {
+      background: rgba(18, 14, 10, 0.85);
+      border: 1px solid #3c2e1c;
+      border-left: 3px solid #d4a037;
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: clamp(0.72rem, 1.4vw, 0.85rem);
+      min-height: 112px;
+    }
+
+    .trow {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 3px 0;
+      opacity: 0;
+      transform: translateY(4px);
+      animation: rowIn 0.35s forwards;
+    }
+
+    @keyframes rowIn {
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
+
+    .trow .tk {
+      color: #d7c7a9;
+      white-space: nowrap;
+    }
+
+    .trow .td {
+      flex: 1;
+      border-bottom: 1px dotted #4d3b25;
+      min-width: 12px;
+    }
+
+    .trow .tv {
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      white-space: nowrap;
+    }
+
+    .tv.warn { color: #e0694b; }
+    .tv.gold { color: #d4a037; }
+    .tv.teal { color: #5fb3a6; }
+
+    .intro-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    #ib {
+      margin: 0;
+      padding: 12px 22px;
+      font-size: 0.96rem;
+      letter-spacing: 0.4px;
+    }
+
+    .intro-note {
+      font-size: 0.76rem;
+      color: #8c7b60;
+      font-family: ui-monospace, Menlo, monospace;
+    }
+
+    /* =========================================================================
+       9. RESPONSIVE BREAKPOINTS (HP, TABLET, LANDSCAPE, DESKTOP, TV / 4K)
+       ========================================================================= */
+
+    /* Tablet & Mobile Portrait */
+    @media (max-width: 768px) {
+      .intro-stage {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        text-align: center;
+      }
+
+      .intro-info {
+        text-align: center;
+      }
+
+      .intro-meta,
+      .intro-actions {
+        justify-content: center;
+      }
+
+      .intro-lead {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .telem {
+        text-align: left;
+      }
+    }
+
+    /* HP Landscape / Layar Pendek agar Intro muat tanpa terpotong */
+    @media (max-height: 540px) and (min-width: 540px) {
+      .intro-stage {
+        grid-template-columns: minmax(150px, 210px) minmax(0, 1fr);
+        gap: 20px;
+        text-align: left;
+      }
+
+      .intro-info {
+        text-align: left;
+      }
+
+      .intro-meta,
+      .intro-actions {
+        justify-content: flex-start;
+      }
+
+      .chrono {
+        width: clamp(140px, 34vh, 200px);
+        height: clamp(140px, 34vh, 200px);
+      }
+
+      .intro-title {
+        font-size: clamp(1.5rem, 4vw, 2.1rem);
+        margin-bottom: 6px;
+      }
+
+      .intro-lead {
+        display: none;
+      }
+
+      .telem {
+        min-height: 86px;
+        padding: 8px 12px;
+      }
+
+      .intro-actions {
+        margin-top: 12px;
+      }
+    }
+
+    /* HP Kecil (<= 560px) */
+    @media (max-width: 560px) {
+      .opts {
+        grid-template-columns: 1fr;
+      }
+
+      .bar {
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 10px 12px;
+      }
+
+      .crys-box {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        text-align: left;
+        border-top: 1px solid var(--ln);
+        padding-top: 8px;
+      }
+
+      .crys-box br {
+        display: none;
+      }
+
+      .crys-box .btn {
+        margin-top: 0 !important;
+      }
+
+      .top-actions {
+        width: 100%;
+      }
+
+      .top-actions .btn.sm {
+        flex: 1 1 auto;
+        text-align: center;
+      }
+
+      .intro-frame:before {
+        display: none;
+      }
+
+      .intro-note {
+        display: none;
+      }
+    }
+
+    /* Layar Sangat Sempit (<= 360px) */
+    @media (max-width: 360px) {
+      .clock {
+        width: 64px;
+        height: 64px;
+      }
+
+      .clock b {
+        font-size: 0.82rem;
+      }
+
+      .plates i {
+        width: 26px;
+        height: 26px;
+      }
+    }
+
+    /* Desktop Besar (1440px+) */
+    @media (min-width: 1440px) {
+      html {
+        font-size: 18px;
+      }
+
+      .w {
+        max-width: 1020px;
+      }
+
+      .intro-stage {
+        max-width: 1140px;
+        grid-template-columns: 360px minmax(0, 1fr);
+      }
+    }
+
+    /* Smart TV / Proyektor / 4K (1920px+) */
+    @media (min-width: 1920px) {
+      html {
+        font-size: 22px;
+      }
+
+      .w {
+        max-width: 1260px;
+      }
+
+      .intro-stage {
+        max-width: 1380px;
+        grid-template-columns: 420px minmax(0, 1fr);
+      }
+
+      .chrono {
+        width: 390px;
+        height: 390px;
+      }
+
+      .clock {
+        width: 96px;
+        height: 96px;
+      }
+
+      .plates i {
+        width: 38px;
+        height: 38px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================================
+       INTRO CHAMBER OVERLAY
+       ========================================================================= -->
+  <div id="intro">
+    <canvas id="icv"></canvas>
+    <div class="intro-frame"></div>
+
+    <div class="intro-stage">
+      <!-- Sisi Kiri: Kronometer Interaktif -->
+      <div class="chrono-wrap">
+        <div class="chrono" id="chrono" title="Klik atau seret untuk memutar cincin waktu">
+          <svg viewBox="0 0 300 300">
+            <defs>
+              <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fff3cf" stop-opacity="0.28"/>
+                <stop offset="60%" stop-color="#d4a037" stop-opacity="0.08"/>
+                <stop offset="100%" stop-color="#0b0805" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+
+            <circle cx="150" cy="150" r="138" fill="url(#coreGlow)"/>
+
+            <g class="c-dial" id="cdial">
+              <circle cx="150" cy="150" r="136" fill="none" stroke="#4d3b25" stroke-width="2"/>
+              <circle cx="150" cy="150" r="128" fill="none" stroke="#d4a037" stroke-width="1.5" stroke-dasharray="2 11.4"/>
+              <circle cx="150" cy="150" r="118" fill="none" stroke="rgba(212,160,55,0.4)" stroke-width="1"/>
+              <polygon points="150,8 145,20 155,20" fill="#e0694b"/>
+              <polygon points="150,292 146,282 154,282" fill="#d4a037"/>
+              <polygon points="8,150 18,146 18,154" fill="#d4a037"/>
+              <polygon points="292,150 282,146 282,154" fill="#d4a037"/>
+            </g>
+
+            <g class="c-gear-a">
+              <circle cx="150" cy="150" r="102" fill="none" stroke="#9a6a10" stroke-width="7" stroke-dasharray="10 8"/>
+              <circle cx="150" cy="150" r="95" fill="none" stroke="#d4a037" stroke-width="1.2"/>
+            </g>
+
+            <g class="c-gear-b">
+              <circle cx="150" cy="150" r="80" fill="none" stroke="#5fb3a6" stroke-width="1.5" stroke-dasharray="24 14 4 14" opacity="0.65"/>
+              <path d="M150 62v10M150 228v10M62 150h10M228 150h10" stroke="#d4a037" stroke-width="2" stroke-linecap="round"/>
+            </g>
+
+            <circle cx="150" cy="150" r="64" fill="#120d08" stroke="#d4a037" stroke-width="2.5"/>
+            <circle cx="150" cy="150" r="58" fill="none" stroke="rgba(212,160,55,0.22)" stroke-width="1"/>
+          </svg>
+
+          <div class="c-readout">
+            <div class="c-year" id="cyear">2087</div>
+            <div class="c-deg" id="cdeg">θ = 000°</div>
+          </div>
+        </div>
+        <div class="c-plaque" id="cplaque">SERET / KETUK CINCIN KRONOMETER</div>
+      </div>
+
+      <!-- Sisi Kanan: Informasi & Telemetri -->
+      <div class="intro-info">
+        <div class="intro-meta">
+          <span class="intro-kicker"><i></i>PERINGATAN SISTEM</span>
+          <button class="aud-btn" id="iaud" type="button" onclick="toggleIntroAudio()">SUARA: MATI</button>
+        </div>
+
+        <h1 class="intro-title">Anda Terperangkap<br>di <span>Mesin Waktu.</span></h1>
+        <p class="intro-lead">
+          Pintu baja ruang kendali baru saja mengunci otomatis. Pecahkan 6 lapis sandi matematika sebelum garis waktu runtuh ke detik nol.
+        </p>
+
+        <div class="telem" id="it3"></div>
+
+        <div class="intro-actions">
+          <button class="btn" id="ib" type="button" onclick="skipIntro()">Masuk ke Ruang Kendali ▸</button>
+          <span class="intro-note" id="inote">atau tekan Enter</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       BACKGROUND & TRANSITION LAYERS
+       ========================================================================= -->
+  <div id="fx"></div>
+  <div id="flash"></div>
+  <div id="warp"></div>
+  <div id="door"><i class="l"></i><i class="r"></i><b></b></div>
+
+  <!-- =========================================================================
+       MAIN APPLICATION SHELL
+       ========================================================================= -->
+  <div class="w">
+    <header class="top">
+      <div class="brand">
+        <svg class="gear" width="40" height="40" viewBox="0 0 40 40">
+          <g fill="none" stroke="#d4a037" stroke-width="3">
+            <circle cx="20" cy="20" r="9"/>
+            <circle cx="20" cy="20" r="3"/>
+            <path d="M20 3v6M20 31v6M3 20h6M31 20h6M8 8l4 4M28 28l4 4M32 8l-4 4M12 28l-4 4"/>
+          </g>
+        </svg>
+        <div>
+          <b>MESIN WAKTU</b>
+          <small>MESIN WAKTU</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button class="btn s sm" id="mnb" style="display:none" onclick="toMenu()">Menu Utama</button>
+        <button class="btn s sm" id="snb" onclick="togSnd()">Suara: Nyala</button>
+        <button class="btn s sm" id="fxb" onclick="togFx()">Efek: Nyala</button>
+        <button class="btn s sm" onclick="guide(0)">Buku Panduan</button>
+      </div>
+    </header>
+
+    <!-- Halaman Menu Utama -->
+    <section id="home" class="sc on">
+      <div class="pn">
+        <div class="eb">TAHUN 2087 · RUANG KENDALI</div>
+        <h2>Mesin waktu ini tidak mau berhenti.</h2>
+        <p>
+          Kamu menekan tombol yang salah, dan pintu baja menutup di belakangmu. Layar berkedip:
+          <i>“Keluar sebelum waktunya habis, atau kamu akan terulang di detik yang sama selamanya.”</i>
+        </p>
+        <p class="mu">
+          Ada 5 gerbang terkunci dan satu kunci utama. Tiap kunci disandikan dengan komposisi fungsi.
+          Pecahkan sandinya dengan matematika sebelum hitung mundur mencapai nol.
+        </p>
+
+        <div class="eb" style="margin-top:14px">PILIH TINGKAT</div>
+        <div class="lv">
+          <label><input type="radio" name="lv" value="santai"><span><b>Santai</b>12 menit · angka kecil</span></label>
+          <label><input type="radio" name="lv" value="normal" checked><span><b>Normal</b>8 menit</span></label>
+          <label><input type="radio" name="lv" value="ahli"><span><b>Ahli</b>5 menit · angka lebih besar</span></label>
+        </div>
+
+        <div class="eb" style="margin-top:18px;color:var(--co)">PAKET SOAL (ganti biar tidak monoton)</div>
+        <div id="pkb"></div>
+
+        <div class="row" style="margin-top:6px">
+          <button class="btn s" onclick="randPk()">Acak paket</button>
+          <button class="btn" onclick="start()">Masuk ke mesin waktu</button>
+          <button class="btn s" onclick="guide(0)">Cara main</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Halaman Permainan -->
+    <section id="play" class="sc">
+      <div class="port">
+        <svg viewBox="0 0 200 200">
+          <defs>
+            <clipPath id="pc"><circle cx="100" cy="100" r="90"/></clipPath>
+          </defs>
+          <circle cx="100" cy="100" r="90" fill="#0b0805"/>
+          <g clip-path="url(#pc)">
+            <g class="vx" stroke="#d4a037" stroke-width="2" opacity=".55">
+              <path d="M100 10v180M10 100h180M36 36l128 128M164 36L36 164"/>
+              <circle cx="100" cy="100" r="30" fill="none"/>
+              <circle cx="100" cy="100" r="58" fill="none" stroke-dasharray="8 10"/>
+              <circle cx="100" cy="100" r="84" fill="none" stroke-dasharray="3 12"/>
+            </g>
+            <g stroke="#f1e6cf" stroke-linecap="round">
+              <line class="h1" x1="100" y1="100" x2="100" y2="48" stroke-width="5"/>
+              <line class="h2" x1="100" y1="100" x2="100" y2="28" stroke-width="3"/>
+            </g>
+            <circle cx="100" cy="100" r="6" fill="#d4a037"/>
+          </g>
+          <circle cx="100" cy="100" r="90" fill="none" stroke="#d4a037" stroke-width="7"/>
+        </svg>
+        <div class="yr">
+          <small>TAHUN SEKARANG</small>
+          <b id="yr">2087</b>
+          <small>mundur terus…</small>
+        </div>
+      </div>
+
+      <div class="bar">
+        <div class="clock" id="ck">
+          <svg viewBox="0 0 76 76">
+            <circle cx="38" cy="38" r="33" fill="none" stroke="var(--ln)" stroke-width="6"/>
+            <circle id="ring" cx="38" cy="38" r="33" fill="none" stroke="var(--br)" stroke-width="6"
+                    stroke-linecap="round" stroke-dasharray="207.3" stroke-dashoffset="0"/>
+          </svg>
+          <b id="tm">00:00</b>
+          <span id="dl"></span>
+        </div>
+        <div class="lft">
+          <div class="sf" id="gn" style="font-size:1.05rem;font-weight:700"></div>
+          <div class="plates" id="pl"></div>
+        </div>
+        <div class="crys-box">
+          <div>
+            <div class="mu" style="font-size:0.75rem">Kristal petunjuk</div>
+            <b id="cr" style="font-size:1.12rem"></b>
+          </div>
+          <button class="btn sm" style="margin-top:6px" onclick="hint()">Pakai</button>
+        </div>
+      </div>
+
+      <div class="pn" id="body"></div>
+    </section>
+
+    <!-- Modal Panduan / Konfirmasi -->
+    <div class="ov" id="ov">
+      <div class="md" id="md"></div>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       1. UTILITIES & MATH HELPERS
+       ========================================================================= */
+    const $ = id => document.getElementById(id);
+    const R = (a, b) => Math.floor(Math.random() * (b - a + 1)) + a;
+    const pick = arr => arr[R(0, arr.length - 1)];
+    const shuf = arr => {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = R(0, i);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    };
+
+    const ab = Math.abs;
+    const sg = b => (b >= 0 ? '−' : '+');
+    const lin = (a, b) => {
+      const s = (a === 1 ? '' : a === -1 ? '-' : a) + 'x';
+      return b > 0 ? `${s} + ${b}` : b < 0 ? `${s} − ${-b}` : s;
+    };
+    const chr = n => {
+      if (n === 0) return ' ';
+      if (n > 0 && n <= 26) return String.fromCharCode(n + 64);
+      if (n < 0 && n >= -26) return String.fromCharCode(96 - n);
+      return '';
+    };
+    const inv = (p, q) => `(x ${sg(q)} ${ab(q)}) / ${p}`;
+    const comp = (f, g) => ({ a: g.a * f.a, b: g.a * f.b + g.b });
+    const mkF = l => ({ a: R(1, l > 2 ? 5 : 3), b: R(-5, 6) || 2 });
+    const mkG = l => ({ a: R(1, l > 2 ? 4 : 3), b: R(-5, 7) || 3 });
+    const lt = m => {
+      const L = R(1, 26);
+      return m && Math.random() < 0.5 ? -L : L;
+    };
+
+    function opts(ans, ds, isLetter) {
+      const s = new Set();
+      ds.forEach(d => {
+        const str = String(d);
+        if (str !== '' && str !== ans) s.add(str);
+      });
+      let k = 0;
+      while (s.size < 3 && k++ < 50) {
+        const x = isLetter ? chr(R(1, 26)) : String(+ans + R(-9, 9));
+        if (x !== '' && x !== ans) s.add(x);
+      }
+      return shuf([...shuf([...s]).slice(0, 3), ans]);
+    }
+
+    const mc = (title, intro, q, ans, o, ex, hn) => ({
+      kind: 'mc', title, intro, q, ans, o, ex, hn
+    });
+
+    const FG = (f, g) => (
+      `<div class="key">f(x) = ${lin(f.a, f.b)}${g ? `<br>g(x) = ${lin(g.a, g.b)}` : ''}</div>`
+    );
+
+    /* =========================================================================
+       2. QUESTION GENERATORS
+       ========================================================================= */
+    function tCode() {
+      const v = lt(1);
+      const t = R(0, 3);
+      const H = 'Huruf besar positif (A=1…Z=26), huruf kecil negatif (a=−1…z=−26), spasi 0.';
+
+      if (t === 0) {
+        return mc(
+          'Panel kode',
+          'Panel menampilkan huruf. Konversi ke angkanya.',
+          `Huruf “${chr(v)}” bernilai…`,
+          String(v),
+          opts(String(v), [-v, v + 1, v - 1]),
+          `${chr(v)} = ${v}`,
+          H
+        );
+      }
+      if (t === 1) {
+        return mc(
+          'Panel kode',
+          'Panel menampilkan angka. Ubah jadi huruf.',
+          `Angka ${v} adalah huruf…`,
+          chr(v),
+          opts(chr(v), [chr(-v), chr(R(1, 26))], 1),
+          `${v} = ${chr(v)}`,
+          H
+        );
+      }
+      if (t === 2) {
+        const a = R(1, 13);
+        const b = R(1, 13);
+        return mc(
+          'Panel kode',
+          'Dua huruf besar muncul bersamaan.',
+          `Nilai “${chr(a)}” + nilai “${chr(b)}” = …`,
+          String(a + b),
+          opts(String(a + b), [a - b, a + b + 1, a + b - 1]),
+          `${chr(a)}=${a}, ${chr(b)}=${b}, jumlah ${a + b}`,
+          H
+        );
+      }
+      const upper = chr(ab(v));
+      const lower = String.fromCharCode(upper.charCodeAt(0) + 32);
+      return mc(
+        'Panel kode',
+        'Satu huruf muncul dalam dua versi.',
+        `Jika “${upper}” = ${ab(v)}, maka “${lower}” = …`,
+        String(-ab(v)),
+        opts(String(-ab(v)), [ab(v), ab(v) + 1, 0]),
+        `Huruf kecil bernilai negatif: ${-ab(v)}`,
+        H
+      );
+    }
+
+    function tPipe(l, two, mx) {
+      const f = mkF(l);
+      const g = two ? mkG(l) : null;
+      const v = lt(mx);
+      const x1 = f.a * v + f.b;
+      const x2 = g ? g.a * x1 + g.b : 0;
+
+      const steps = [{
+        label: `f(${v})`,
+        prompt: `Masukkan ${v} ke mesin f. f(${v}) = ?`,
+        ans: x1,
+        hint: `${f.a} × (${v}) ${f.b < 0 ? '−' : '+'} ${ab(f.b)}`
+      }];
+
+      if (g) {
+        steps.push({
+          label: `g(${x1})`,
+          prompt: `Hasil f (${x1}) masuk mesin g. g(${x1}) = ?`,
+          ans: x2,
+          hint: `${g.a} × (${x1}) ${g.b < 0 ? '−' : '+'} ${ab(g.b)}`
+        });
+      }
+
+      return {
+        kind: 'st',
+        title: two ? 'Rantai dua mesin' : 'Roda gigi',
+        intro: `Sandikan huruf <b>${chr(v)}</b> (nilainya <b>${v}</b>).${FG(f, g)}`,
+        start: `${chr(v)} = ${v}`,
+        steps,
+        ex: g ? `(g∘f)(${v}) = g(${x1}) = ${x2}` : `f(${v}) = ${x1}`
+      };
+    }
+
+    function tFindB() {
+      const a = R(1, 4);
+      const b = R(-6, 7) || 3;
+      const x = R(-3, 5);
+      const y = a * x + b;
+      return mc(
+        'Roda gigi rusak',
+        `<div class="key">f(x) = ${a}x + b<br>f(${x}) = ${y}</div>`,
+        'Berapa nilai b agar mesin bekerja?',
+        String(b),
+        opts(String(b), [b + 1, b - 1, -b, y - a]),
+        `${a}(${x}) + b = ${y} → b = ${y} − ${a * x} = ${b}`,
+        `Substitusi x=${x} lalu selesaikan untuk b.`
+      );
+    }
+
+    function tFindA() {
+      const a = R(1, 5);
+      const b = R(-5, 6) || 2;
+      const x = R(2, 5);
+      const y = a * x + b;
+      return mc(
+        'Roda gigi rusak',
+        `<div class="key">f(x) = ax ${b < 0 ? '−' : '+'} ${ab(b)}<br>f(${x}) = ${y}</div>`,
+        'Berapa nilai a agar mesin bekerja?',
+        String(a),
+        opts(String(a), [a + 1, a - 1, y - b, x]),
+        `a(${x}) ${b < 0 ? '−' : '+'} ${ab(b)} = ${y} → a = ${y - b} / ${x} = ${a}`,
+        `Pindahkan konstanta ke kanan, lalu bagi dengan ${x}.`
+      );
+    }
+
+    function tForm(l) {
+      const f = mkF(l);
+      const g = mkG(l);
+      const gf = comp(f, g);
+      const fg = comp(g, f);
+      const A = lin(gf.a, gf.b);
+      return mc(
+        'Rumus rantai',
+        FG(f, g),
+        'Tentukan (g∘f)(x).',
+        A,
+        opts(A, [
+          lin(fg.a, fg.b),
+          lin(gf.a, g.b + f.b),
+          lin(f.a + g.a, f.b + g.b),
+          lin(gf.a, gf.b + R(1, 3))
+        ].filter(x => x !== A)),
+        `g(f(x)) = ${g.a}(${f.a}x ${f.b < 0 ? '−' : '+'} ${ab(f.b)}) ${g.b < 0 ? '−' : '+'} ${ab(g.b)} = ${A}`,
+        'Masukkan f(x) ke dalam g(x).'
+      );
+    }
+
+    function tEval(l) {
+      const f = mkF(l);
+      const g = mkG(l);
+      const k = R(-3, 5);
+      const isFG = Math.random() < 0.5;
+      const A = isFG
+        ? f.a * (g.a * k + g.b) + f.b
+        : g.a * (f.a * k + f.b) + g.b;
+      const B = isFG
+        ? g.a * (f.a * k + f.b) + g.b
+        : f.a * (g.a * k + g.b) + g.b;
+
+      return mc(
+        'Hitung rantai',
+        FG(f, g),
+        `Hitung ${isFG ? '(f∘g)' : '(g∘f)'}(${k}).`,
+        String(A),
+        opts(String(A), [B, A + R(1, 3), A - R(1, 3), A + f.a]),
+        `${isFG ? '(f∘g)' : '(g∘f)'}(${k}) = ${A}. Urutan lain memberi ${B}.`,
+        isFG ? 'Kerjakan g(x) dulu, hasilnya masuk f.' : 'Kerjakan f(x) dulu, hasilnya masuk g.'
+      );
+    }
+
+    function tOrder(l) {
+      let f, g, k, a, b;
+      do {
+        f = mkF(l);
+        g = mkG(l);
+        k = R(-3, 5);
+        a = g.a * (f.a * k + f.b) + g.b;
+        b = f.a * (g.a * k + g.b) + g.b;
+      } while (a === b);
+
+      const isGF = Math.random() < 0.5;
+      const N = isGF ? a : b;
+      return mc(
+        'Lorong urutan',
+        FG(f, g),
+        `Dengan x = ${k}, kunci pintu menghasilkan ${N}. Kunci yang dipakai?`,
+        isGF ? '(g∘f)(x)' : '(f∘g)(x)',
+        ['(g∘f)(x)', '(f∘g)(x)'],
+        `(g∘f)(${k}) = ${a}, sedangkan (f∘g)(${k}) = ${b}. Urutan menentukan hasil.`,
+        'Hitung keduanya dengan x yang diberikan, lalu cocokkan.'
+      );
+    }
+
+    function tInvF(l) {
+      const f = mkF(l);
+      const A = inv(f.a, f.b);
+      return mc(
+        'Mesin pembalik',
+        FG(f),
+        'Tentukan f⁻¹(x).',
+        A,
+        opts(A, [
+          inv(f.a, -f.b),
+          `(x ${sg(f.b)} ${ab(f.b)}) × ${f.a}`,
+          `${f.a}x ${sg(f.b)} ${ab(f.b)}`,
+          inv(ab(f.b) || 2, f.a)
+        ]),
+        `Invers px+q adalah (x − q) / p → ${A}`,
+        'Balik operasi: kurangi konstanta dulu, lalu bagi koefisien.'
+      );
+    }
+
+    function tRev(l, mx) {
+      const f = mkF(l);
+      const g = mkG(l);
+      const v = lt(mx);
+      const y = f.a * v + f.b;
+      const n = g.a * y + g.b;
+      const easy = l < 3;
+
+      const steps = [
+        {
+          label: 'balik g',
+          prompt: `Cipher ${n}. Balik mesin g lebih dulu${easy ? `: (${n} ${sg(g.b)} ${ab(g.b)}) / ${g.a}` : ''} = ?`,
+          ans: y,
+          hint: `g⁻¹(x) = ${inv(g.a, g.b)} → (${n} ${sg(g.b)} ${ab(g.b)}) / ${g.a}`
+        },
+        {
+          label: 'balik f',
+          prompt: `Dari ${y}, balik mesin f${easy ? `: (${y} ${sg(f.b)} ${ab(f.b)}) / ${f.a}` : ''} = ?`,
+          ans: v,
+          hint: `f⁻¹(x) = ${inv(f.a, f.b)} → (${y} ${sg(f.b)} ${ab(f.b)}) / ${f.a}`
+        },
+        {
+          label: 'huruf',
+          prompt: `Angka ${v} adalah huruf…`,
+          ans: chr(v),
+          hint: 'Positif = huruf besar, negatif = huruf kecil.'
+        }
+      ];
+
+      return {
+        kind: 'st',
+        title: 'Brankas balik',
+        intro: `Brankas disandikan dengan (g∘f)(x): f dulu, lalu g.${FG(f, g)}Untuk membuka, balik urutannya: g⁻¹ dulu, baru f⁻¹.`,
+        start: `cipher ${n}`,
+        steps,
+        ex: `${n} → ${y} → ${v} → “${chr(v)}”`
+      };
+    }
+
+    function tWord() {
+      const w = pick(['ROBOT', 'KODE', 'DATA', 'JAM', 'WAKTU', 'MESIN', 'BUMI', 'API', 'SANDI', 'LAB']);
+      const cs = [...w].map(c => c.charCodeAt(0) - 64);
+      const ds = [];
+      for (let k = 0; k < 30 && ds.length < 3; k++) {
+        const i = R(0, w.length - 1);
+        const c = String.fromCharCode(65 + R(0, 25));
+        if (c === w[i]) continue;
+        const x = w.slice(0, i) + c + w.slice(i + 1);
+        if (!ds.includes(x)) ds.push(x);
+      }
+      return mc(
+        'Pembaca kode',
+        'Layar menampilkan deretan angka tanpa fungsi.',
+        `Kode ${cs.join(', ')} membentuk kata…`,
+        w,
+        opts(w, ds, 0),
+        `${cs.join(', ')} → ${w}`,
+        'A=1, B=2, … Z=26.'
+      );
+    }
+
+    function tDecMc(l) {
+      const f = mkF(l);
+      const g = mkG(l);
+      const h = comp(f, g);
+      const v = lt(1);
+      const n = h.a * v + h.b;
+      const d = `x = (${n} ${sg(h.b)} ${ab(h.b)}) / ${h.a}`;
+      return mc(
+        'Pembongkar cepat',
+        FG(f, g) + `<div class="key">(g∘f)(x) = ${lin(h.a, h.b)}</div>`,
+        `Cipher ${n} berasal dari huruf…`,
+        chr(v),
+        opts(chr(v), [chr(-v), chr(v > 0 ? Math.min(26, v + 1) : -1), chr(R(1, 26))], 1),
+        `${d} = ${v} → “${chr(v)}”`,
+        `${d}, lalu ubah angka jadi huruf.`
+      );
+    }
+
+    function tFinal(l) {
+      const f = mkF(l);
+      const g = mkG(l);
+      const h = comp(f, g);
+      const w = pick(WORDS[G.pk.tm]);
+      const cs = [...w].map(c => h.a * (c.charCodeAt(0) - 64) + h.b);
+
+      return {
+        kind: 'st',
+        title: 'Kunci utama',
+        intro: `Kunci utama menampilkan kata sandi terenkripsi. Gabungkan semua ilmumu.${FG(f, g)}<div class="key">(g∘f)(x) = ${lin(h.a, h.b)}<br>Cipher: ${cs.join(' , ')}</div>`,
+        start: 'KUNCI UTAMA',
+        steps: cs.map((n, i) => ({
+          label: `huruf ${i + 1}`,
+          prompt: `Cipher ${n} → huruf (besar)…?`,
+          ans: w[i],
+          ci: 1,
+          hint: `x = (${n} ${sg(h.b)} ${ab(h.b)}) / ${h.a}, lalu ubah angka jadi huruf.`
+        })),
+        ex: `Kata sandi: ${w}. Pintu mesin waktu terbuka!`
+      };
+    }
+
+    /* =========================================================================
+       3. GAME DATA, PACKAGES & CONFIGURATION
+       ========================================================================= */
+    const WORDS = {
+      wkt: ['WAKTU', 'MESIN', 'KRONOS', 'ZAMAN', 'MASA', 'DETIK'],
+      tek: ['ROBOT', 'SANDI', 'KODE', 'DATA', 'LAPTOP', 'SERVER'],
+      skl: ['TELKOM', 'FUNGSI', 'INVERS', 'SEKOLAH', 'KUNCI', 'RUMUS'],
+      alm: ['GUNUNG', 'SAMUDRA', 'HUTAN', 'BINTANG', 'BULAN', 'ANGIN']
+    };
+    WORDS.mix = [].concat(WORDS.wkt, WORDS.tek, WORDS.skl, WORDS.alm);
+
+    const P1 = l => tPipe(l, 0, 0);
+    const P1m = l => tPipe(l, 0, 1);
+    const P2 = l => tPipe(l, 1, 0);
+    const P2m = l => tPipe(l, 1, 1);
+    const RV = l => tRev(l);
+    const RVm = l => tRev(l, 1);
+
+    const POOL = {
+      mix: [
+        [tCode, tCode, tFindB, tWord],
+        [P1, P1, tFindB, tFindA, P1m],
+        [P2, P2m, tForm, tEval],
+        [tOrder, tForm, tEval, tOrder],
+        [RV, RVm, tInvF, tDecMc]
+      ],
+      hitung: [
+        [tCode, tFindB, tWord],
+        [P1, P1m, tFindA, tFindB],
+        [P2, P2m, tEval],
+        [tEval, tEval, tOrder],
+        [RV, RVm, tDecMc]
+      ],
+      konsep: [
+        [tCode, tWord, tCode],
+        [tFindB, tFindA, tCode],
+        [tForm, tEval, tForm],
+        [tOrder, tForm, tOrder],
+        [tInvF, tDecMc, tInvF]
+      ],
+      sandi: [
+        [tWord, tDecMc, tCode],
+        [P1m, P1, tDecMc],
+        [P2m, P2, tDecMc],
+        [tDecMc, tOrder, tEval],
+        [RVm, RV, tDecMc]
+      ]
+    };
+
+    const GATES = [
+      ['I', 'Panel Kode'],
+      ['II', 'Roda Gigi f'],
+      ['III', 'Rantai Ganda'],
+      ['IV', 'Lorong Urutan'],
+      ['V', 'Brankas Balik'],
+      ['VI', 'Kunci Utama']
+    ];
+
+    const NAR = [
+      'Terdengar bunyi klik besar. Pintu bergeser.',
+      'Roda gigi berputar mundur, lalu berhenti tepat waktu.',
+      'Lampu merah berganti hijau. Satu kunci lepas.',
+      'Udara berdesis. Lorong di depan kini terbuka.',
+      'Layar berkedip: “Kode diterima.”'
+    ];
+
+    const LV = {
+      santai: { t: 720, p: 8, l: 1 },
+      normal: { t: 480, p: 12, l: 2 },
+      ahli: { t: 300, p: 18, l: 3 }
+    };
+
+    const PK = [
+      ['gy', 'Gaya soal', [
+        ['mix', 'Campuran', 'semua jenis'],
+        ['hitung', 'Hitung cepat', 'banyak hitungan'],
+        ['konsep', 'Konsep rumus', 'rumus & urutan'],
+        ['sandi', 'Detektif sandi', 'bongkar kode']
+      ], 'mix'],
+      ['tm', 'Tema kata sandi akhir', [
+        ['wkt', 'Waktu', ''],
+        ['tek', 'Teknologi', ''],
+        ['skl', 'Sekolah', ''],
+        ['alm', 'Alam', ''],
+        ['mix', 'Campur', '']
+      ], 'wkt'],
+      ['jm', 'Soal per gerbang', [
+        ['3', '3 soal', 'ringkas'],
+        ['4', '4 soal', 'sedang'],
+        ['5', '5 soal', 'panjang']
+      ], '3']
+    ];
+
+    function buildPk(sel) {
+      $('pkb').innerHTML = PK.map(([name, title, options, def]) => `
+        <div class="eb" style="margin-top:12px">${title.toUpperCase()}</div>
+        <div class="lv">
+          ${options.map(([val, lbl, sub]) => `
+            <label>
+              <input type="radio" name="${name}" value="${val}" ${(sel ? sel[name] : def) === val ? 'checked' : ''}>
+              <span><b>${lbl}</b>${sub}</span>
+            </label>
+          `).join('')}
+        </div>
+      `).join('');
+    }
+
+    function randPk() {
+      const s = {};
+      PK.forEach(([n, , o]) => { s[n] = pick(o)[0]; });
+      buildPk(s);
+    }
+
+    const rv = n => (document.querySelector(`input[name=${n}]:checked`) || {}).value;
+    const readPk = () => ({
+      gy: rv('gy') || 'mix',
+      tm: rv('tm') || 'wkt',
+      jm: +(rv('jm') || 3)
+    });
+
+    function mkGate(i) {
+      const l = LV[G.lv].l;
+      if (i === 5) return [tFinal(l)];
+      const pool = shuf([...POOL[G.pk.gy][i]]);
+      const out = [];
+      for (let k = 0; k < G.pk.jm; k++) {
+        out.push(pool[k % pool.length](l));
+      }
+      return out;
+    }
+
+    /* =========================================================================
+       4. AUDIO ENGINE (Web Audio API)
+       ========================================================================= */
+    let AC = null;
+    let SND = true;
+    let DR = null;
+    let tk = 0;
+    let hb = 0;
+    let tg = false;
+    let al = 0;
+
+    function ac() {
+      if (!AC) {
+        try {
+          AC = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {}
+      }
+      if (AC && AC.state === 'suspended') AC.resume();
+      return AC;
+    }
+
+    function tone(f, d, ty, v, t0, f2) {
+      const c = ac();
+      if (!c || !SND) return;
+      const o = c.createOscillator();
+      const g = c.createGain();
+      const t = c.currentTime + (t0 || 0);
+      o.type = ty || 'sine';
+      o.frequency.setValueAtTime(f, t);
+      if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + d);
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(v || 0.15, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      o.connect(g);
+      g.connect(c.destination);
+      o.start(t);
+      o.stop(t + d + 0.05);
+    }
+
+    function noise(d, v, fr, t0, sw) {
+      const c = ac();
+      if (!c || !SND) return;
+      const n = Math.floor(c.sampleRate * d);
+      const b = c.createBuffer(1, n, c.sampleRate);
+      const x = b.getChannelData(0);
+      for (let i = 0; i < n; i++) x[i] = Math.random() * 2 - 1;
+
+      const s = c.createBufferSource();
+      const f = c.createBiquadFilter();
+      const g = c.createGain();
+      const t = c.currentTime + (t0 || 0);
+      s.buffer = b;
+      f.type = 'bandpass';
+      f.frequency.setValueAtTime(fr, t);
+      if (sw) f.frequency.exponentialRampToValueAtTime(sw, t + d);
+      g.gain.setValueAtTime(v, t);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      s.connect(f);
+      f.connect(g);
+      g.connect(c.destination);
+      s.start(t);
+    }
+
+    function drone(on) {
+      const c = ac();
+      if (!c) return;
+      if (DR) {
+        try {
+          DR.g.gain.setTargetAtTime(0, c.currentTime, 0.3);
+          DR.o.forEach(o => o.stop(c.currentTime + 1.5));
+        } catch (e) {}
+        DR = null;
+      }
+      if (!on || !SND) return;
+
+      const g = c.createGain();
+      const f = c.createBiquadFilter();
+      const o1 = c.createOscillator();
+      const o2 = c.createOscillator();
+      const l = c.createOscillator();
+      const lg = c.createGain();
+
+      o1.type = 'sawtooth';
+      o1.frequency.value = 55;
+      o2.type = 'sawtooth';
+      o2.frequency.value = 55.7;
+      f.type = 'lowpass';
+      f.frequency.value = 220;
+      g.gain.value = 0;
+      g.gain.setTargetAtTime(0.06, c.currentTime, 1);
+
+      l.frequency.value = 0.25;
+      lg.gain.value = 60;
+      l.connect(lg);
+      lg.connect(f.frequency);
+      o1.connect(f);
+      o2.connect(f);
+      f.connect(g);
+      g.connect(c.destination);
+      [o1, o2, l].forEach(o => o.start());
+      DR = { g, f, o: [o1, o2, l] };
+    }
+
+    function sfx(k) {
+      if (k === 'win' || k === 'lose') drone(0);
+      if (k === 'ok') {
+        tone(660, 0.15, 'triangle', 0.18);
+        tone(990, 0.25, 'triangle', 0.16, 0.09);
+      } else if (k === 'bad') {
+        tone(140, 0.4, 'sawtooth', 0.2, 0, 60);
+        noise(0.25, 0.15, 300);
+      } else if (k === 'crys') {
+        tone(1200, 0.4, 'sine', 0.12);
+        tone(1800, 0.5, 'sine', 0.08, 0.05);
+      } else if (k === 'door') {
+        noise(1, 0.25, 200, 0, 900);
+        tone(70, 0.6, 'square', 0.16, 0, 40);
+        tone(200, 1.4, 'sawtooth', 0.05, 0.9, 1200);
+        tone(80, 0.5, 'square', 0.2, 0.95, 35);
+      } else if (k === 'warp') {
+        tone(120, 1.2, 'sawtooth', 0.08, 0, 1400);
+        noise(1.2, 0.12, 500, 0, 3000);
+      } else if (k === 'win') {
+        [523, 659, 784, 1047, 1319].forEach((f, i) => tone(f, 0.5, 'triangle', 0.18, i * 0.13));
+      } else if (k === 'lose') {
+        tone(440, 1.5, 'sawtooth', 0.18, 0, 60);
+        tone(330, 1.7, 'square', 0.1, 0.3, 40);
+        noise(1, 0.18, 300, 0, 60);
+      } else if (k === 'alarm') {
+        for (let i = 0; i < 4; i++) tone(i % 2 ? 660 : 880, 0.22, 'triangle', 0.07, i * 0.28);
+      } else if (k === 'hb') {
+        tone(55, 0.14, 'sine', 0.4);
+        tone(48, 0.16, 'sine', 0.32, 0.2);
+      } else if (k === 'beep') {
+        tone(1500, 0.08, 'square', 0.09);
+      }
+    }
+
+    function audTick() {
+      if (!SND || !AC || !DR || G.pa || !G.T0 || G.T <= 0) return;
+      tk += 0.1;
+      hb += 0.1;
+      const T = G.T;
+      const iv = T > 60 ? 1 : T > 30 ? 0.7 : T > 10 ? 0.5 : 0.3;
+      if (tk >= iv) {
+        tk = 0;
+        tg = !tg;
+        tone(tg ? 1800 : 1300, 0.04, 'square', 0.05);
+        if (T <= 10) sfx('beep');
+        DR.f.frequency.setTargetAtTime(220 + (1 - T / G.T0) * 500, AC.currentTime, 0.5);
+        DR.g.gain.setTargetAtTime(T < 30 ? 0.11 : 0.06, AC.currentTime, 0.5);
+      }
+      if (T <= 30 && hb >= 0.9) {
+        hb = 0;
+        sfx('hb');
+      }
+    }
+
+    function togSnd() {
+      SND = !SND;
+      $('snb').textContent = 'Suara: ' + (SND ? 'Nyala' : 'Mati');
+      syncIntroAud();
+      if (!SND) drone(0);
+      else if (G.cur && G.T > 0 && !G.gates[5]) drone(1);
+    }
+
+    /* =========================================================================
+       5. VISUAL EFFECTS (Background, Warp, Door)
+       ========================================================================= */
+    function initFx() {
+      const f = $('fx');
+      if (f.dataset.r) return;
+      f.dataset.r = 1;
+      let h = '';
+      for (let i = 0; i < 6; i++) {
+        h += `<div class="ring" style="animation-delay:${-i * 0.9}s"></div>`;
+      }
+      const gr =
+        '<circle cx="50" cy="50" r="38" fill="none" stroke="#d4a037" stroke-width="10" stroke-dasharray="7 5.5"/>' +
+        '<circle cx="50" cy="50" r="27" fill="none" stroke="#d4a037" stroke-width="3"/>' +
+        '<circle cx="50" cy="50" r="6" fill="#d4a037"/>';
+      h += `<svg class="bg" style="left:-110px;top:-110px;width:380px" viewBox="0 0 100 100">${gr}</svg>`;
+      h += `<svg class="bg r" viewBox="0 0 100 100">${gr}</svg>`;
+
+      const cs = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ+-';
+      for (let i = 0; i < 26; i++) {
+        h += `<span class="pt" style="left:${R(0, 98)}%;animation-duration:${R(7, 16)}s;animation-delay:${-R(0, 16)}s;font-size:${R(12, 26)}px">${cs[R(0, cs.length - 1)]}</span>`;
+      }
+      f.innerHTML = h;
+    }
+
+    function rs(el, cls) {
+      el.classList.remove(cls);
+      void el.offsetWidth;
+      el.classList.add(cls);
+    }
+
+    function shake() {
+      rs(document.body, 'sk');
+    }
+
+    function warp() {
+      sfx('warp');
+      const w = $('warp');
+      rs(w, 'on');
+      setTimeout(() => w.classList.remove('on'), 1500);
+    }
+
+    function door() {
+      sfx('door');
+      const d = $('door');
+      rs(d, 'on');
+      setTimeout(() => d.classList.remove('on'), 2500);
+      setTimeout(warp, 1100);
+    }
+
+    function fx2(k) {
+      const f = $('flash');
+      const colors = {
+        r: 'rgba(224,105,75,.4)',
+        g: 'rgba(159,213,138,.28)',
+        w: 'rgba(255,240,200,.95)',
+        l: 'rgba(20,10,5,.85)'
+      };
+      f.style.background = colors[k];
+      rs(f, 'on');
+      if (k === 'l') rs(document.body, 'rw');
+      if (k === 'w') warp();
+    }
+
+    function togFx() {
+      const off = document.body.classList.toggle('nofx');
+      $('fxb').textContent = 'Efek: ' + (off ? 'Mati' : 'Nyala');
+    }
+
+    /* =========================================================================
+       6. CORE GAMEPLAY LOOP
+       ========================================================================= */
+    let G = {};
+    let seen = 0;
+
+    function fmt(s) {
+      s = Math.max(0, Math.ceil(s));
+      return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+    }
+
+    function go(id) {
+      const m = $('mnb');
+      if (m) m.style.display = id === 'play' ? '' : 'none';
+      document.querySelectorAll('.sc').forEach(s => s.classList.toggle('on', s.id === id));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function start() {
+      initFx();
+      warp();
+      const lv = document.querySelector('input[name=lv]:checked').value;
+      clearInterval(G.iv);
+      G = {
+        pk: readPk(),
+        lv,
+        T: LV[lv].t,
+        T0: LV[lv].t,
+        gi: 0,
+        ti: 0,
+        cr: 3,
+        gates: [],
+        wr: 0,
+        pa: 0
+      };
+      G.tasks = mkGate(0);
+      go('play');
+      plates();
+      crys();
+      tk = 0;
+      hb = 0;
+      drone(1);
+      tick();
+      G.iv = setInterval(() => {
+        if (G.pa) return;
+        G.T -= 0.1;
+        tick();
+        if (G.T <= 0) {
+          clearInterval(G.iv);
+          lose();
+        }
+      }, 100);
+      if (!seen) {
+        seen = 1;
+        guide(0);
+      }
+      show();
+    }
+
+    function tick() {
+      audTick();
+      document.documentElement.style.setProperty('--sp', (1.2 + Math.max(0, G.T) / G.T0 * 5).toFixed(2) + 's');
+      document.body.classList.toggle('urg', G.T < 30 && G.T > 0);
+      const y = $('yr');
+      if (y) y.textContent = 2087 - Math.floor((G.T0 - Math.max(0, G.T)) * 1.5);
+      $('tm').textContent = fmt(G.T);
+      $('ring').style.strokeDashoffset = 207.3 * (1 - Math.max(0, G.T) / G.T0);
+      $('ck').classList.toggle('warn', G.T < 30);
+    }
+
+    function chg(s) {
+      G.T += s;
+      const d = document.createElement('span');
+      d.className = 'dl ' + (s > 0 ? 'p' : 'm');
+      d.textContent = (s > 0 ? '+' : '−') + ab(s) + 'd';
+      $('dl').appendChild(d);
+      setTimeout(() => d.remove(), 1100);
+      tick();
+    }
+
+    function plates() {
+      $('pl').innerHTML = GATES.map((g, i) => (
+        `<i class="${G.gates[i] ? 'd' : i === G.gi ? 'c' : ''}" title="${g[1]}">${g[0]}</i>`
+      )).join('');
+      $('gn').textContent = `Gerbang ${GATES[G.gi][0]} · ${GATES[G.gi][1]}`;
+    }
+
+    function crys() {
+      $('cr').textContent = '◆'.repeat(G.cr) + '◇'.repeat(3 - G.cr);
+    }
+
+    function show() {
+      G.S = 0;
+      G.done = 0;
+      const t = G.cur = G.tasks[G.ti];
+      plates();
+
+      let h = `<span class="tag">Soal ${G.ti + 1}/${G.tasks.length}</span><span class="tag">${t.title}</span><p>${t.intro || ''}</p>`;
+      if (t.kind === 'mc') {
+        h += `<div class="qt">${t.q}</div><div class="opts">${t.o.map(o => `<button class="op">${o}</button>`).join('')}</div>`;
+      } else {
+        h += '<div id="stp">' + flow() + '</div>';
+      }
+      h += '<div class="fb" id="fb"></div>';
+      $('body').innerHTML = h;
+      bind();
+    }
+
+    function flow() {
+      const t = G.cur;
+      const s = t.steps;
+      let h = `
+        <div class="flow">
+          <div class="nd dn"><small>mulai</small><b>${t.start}</b></div>
+          ${s.map((x, i) => `
+            <span class="ar">→</span>
+            <div class="nd ${i < G.S ? 'dn' : i === G.S ? 'cur' : ''}">
+              <small>${x.label}</small>
+              <b>${i < G.S ? x.ans : '?'}</b>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      if (G.S < s.length) {
+        h += `
+          <div class="qt">${s[G.S].prompt}</div>
+          <div class="row">
+            <input class="t" id="in" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Jawabanmu">
+            <button class="btn" style="margin:0" onclick="chk()">Cek</button>
+          </div>
+        `;
+      }
+      return h;
+    }
+
+    function bind() {
+      document.querySelectorAll('.op').forEach(b => { b.onclick = () => pickO(b); });
+      const i = $('in');
+      if (i) {
+        i.onkeydown = e => { if (e.key === 'Enter') chk(); };
+        i.focus();
+      }
+    }
+
+    function wrong(msg) {
+      sfx('bad');
+      shake();
+      fx2('r');
+      G.wr++;
+      chg(-LV[G.lv].p);
+      $('fb').className = 'fb no';
+      $('fb').textContent = msg;
+    }
+
+    function pickO(b) {
+      if (G.done) return;
+      if (b.textContent === G.cur.ans) {
+        b.classList.add('c');
+        document.querySelectorAll('.op').forEach(x => { x.disabled = true; });
+        chg(4);
+        fin();
+      } else {
+        b.classList.add('w');
+        b.disabled = true;
+        wrong('Belum tepat, waktu berkurang. Coba pilihan lain.');
+      }
+    }
+
+    function norm(v) {
+      return v.replace(/[−–—]/g, '-').replace(/\s+/g, '');
+    }
+
+    function chk() {
+      if (G.done || G.pa || !G.cur) return;
+      const t = G.cur;
+      const s = t.steps[G.S];
+      const raw = $('in').value.trim();
+      if (!raw) return;
+
+      let ok;
+      if (typeof s.ans === 'number') {
+        const v = norm(raw);
+        ok = /^-?\d+$/.test(v) && +v === s.ans;
+      } else {
+        ok = raw === s.ans || (s.ci && raw.toUpperCase() === s.ans);
+      }
+
+      if (ok) {
+        chg(3);
+        G.S++;
+        $('stp').innerHTML = flow();
+        if (G.S >= t.steps.length) fin();
+        else bind();
+      } else {
+        wrong('Belum tepat. Periksa tanda +/−, urutan langkah, dan huruf besar/kecil, atau pakai kristal petunjuk.');
+        $('in').select();
+      }
+    }
+
+    function hint() {
+      if (G.done || !G.cur || G.pa) return;
+      if (!G.cr) {
+        $('fb').className = 'fb no';
+        $('fb').textContent = 'Kristal petunjuk habis.';
+        return;
+      }
+      G.cr--;
+      sfx('crys');
+      crys();
+      const t = G.cur;
+      $('fb').className = 'fb mu';
+      $('fb').textContent = 'Petunjuk: ' + (t.kind === 'mc' ? t.hn : t.steps[G.S].hint);
+    }
+
+    function fin() {
+      G.done = 1;
+      sfx('ok');
+      fx2('g');
+      const last = G.ti >= G.tasks.length - 1;
+      $('fb').className = 'fb ok';
+      $('fb').innerHTML = `
+        Tepat! ${G.cur.ex}<br>
+        <button class="btn" id="nx">${last ? (G.gi === 5 ? 'Buka kunci utama' : 'Buka gerbang') : 'Lanjut'}</button>
+      `;
+      $('nx').onclick = () => {
+        if (!last) {
+          G.ti++;
+          show();
+        } else {
+          gate();
+        }
+      };
+    }
+
+    function gate() {
+      G.gates[G.gi] = 1;
+      if (G.gi === 5) return win();
+      chg(15);
+      G.pa = 1;
+      door();
+      const nx = GATES[G.gi + 1];
+      G.gi++;
+      G.tasks = mkGate(G.gi);
+      G.ti = 0;
+      plates();
+      $('body').innerHTML = `
+        <div class="eb">GERBANG TERBUKA</div>
+        <h2 style="font-size:1.75rem">${pick(NAR)}</h2>
+        <p class="mu">Bonus waktu +15 detik. Di depan: <b>Gerbang ${nx[0]} · ${nx[1]}</b>. Waktu berjalan lagi setelah kamu masuk.</p>
+        <button class="btn" onclick="G.pa=0;show()">Masuk</button>
+      `;
+    }
+
+    function win() {
+      clearInterval(G.iv);
+      sfx('win');
+      fx2('w');
+      document.body.classList.remove('urg');
+      const r = G.T / G.T0;
+      const rk = r > 0.5 ? 'Penjelajah Waktu Ulung' : r > 0.25 ? 'Pelarian Tipis' : 'Lolos di Detik Terakhir';
+      $('body').innerHTML = `
+        <div class="eb">KELUAR!</div>
+        <h2>Kamu lolos dari mesin waktu.</h2>
+        <p>Sisa waktu <b>${fmt(G.T)}</b> · Salah <b>${G.wr}x</b> · Kristal tersisa <b>${G.cr}</b></p>
+        <p class="sf" style="font-size:1.35rem;color:var(--br)">Gelar: ${rk}</p>
+        <div class="key">
+          Ringkasan: komposisi (g∘f)(x) = g(f(x)) → f dulu, baru g.<br>
+          Dekripsi memakai invers dan membalik urutan: g⁻¹ dulu, baru f⁻¹.
+        </div>
+        <div class="row">
+          <button class="btn" onclick="start()">Main lagi (soal baru)</button>
+          <button class="btn s" onclick="go('home')">Menu</button>
+        </div>
+      `;
+    }
+
+    function lose() {
+      sfx('lose');
+      fx2('l');
+      document.body.classList.remove('urg');
+      const c = G.gates.filter(Boolean).length;
+      $('body').innerHTML = `
+        <div class="eb">WAKTU HABIS</div>
+        <h2>Mesin menarikmu kembali ke detik pertama.</h2>
+        <p>Kamu membuka <b>${c}</b> dari 6 gerbang. Semua soal akan berbeda saat kamu mencoba lagi.</p>
+        <div class="row">
+          <button class="btn" onclick="start()">Coba lagi</button>
+          <button class="btn s" onclick="go('home')">Menu</button>
+        </div>
+      `;
+    }
+
+    /* =========================================================================
+       7. GUIDE & MENU MODALS
+       ========================================================================= */
+    const GP = [
+      ['Cerita &amp; tujuan', 'Kamu terjebak di mesin waktu. Buka <b>5 gerbang</b> dan <b>1 kunci utama</b> sebelum hitung mundur habis. Kalau waktu habis, kamu mengulang dari awal dengan soal baru.'],
+      ['Aturan waktu', 'Jam di kiri atas terus berjalan.<div class="key">Jawaban benar: +3 sampai +4 detik<br>Gerbang terbuka: +15 detik<br>Jawaban salah: −8 / −12 / −18 detik<br>(sesuai tingkat)</div>Jadi teliti itu penting. Asal tebak akan menguras waktu.'],
+      ['Kode huruf', 'Setiap karakter punya nilai angka:<div class="key">spasi = 0<br>A–Z = 1 … 26<br>a–z = −1 … −26</div>Contoh: C = 3, c = −3.'],
+      ['Mengunci: komposisi', 'Angka huruf masuk mesin f, lalu hasilnya masuk mesin g.<div class="key">(g∘f)(x) = g(f(x))<br>f(x)=2x+1, g(x)=3x+2, C=3<br>f(3)=7 → g(7)=23</div>Cipherteks C = 23.'],
+      ['Membuka: invers', 'Balik arah dan urutan: buka g dulu, baru f.<div class="key">invers px+q → (x − q) / p<br>23 → (23−2)/3 = 7<br>7 → (7−1)/2 = 3 → C</div>'],
+      ['Cara main', '• Soal pilihan ganda: klik jawabannya.<br>• Soal isian: ketik angka atau huruf lalu Enter atau Cek.<br>• Kristal petunjuk (3 per permainan) membuka rumus langkah itu tanpa mengurangi waktu.<br>• Soal diacak tiap main. Ubah <b>Paket Soal</b> di menu (gaya soal, tema kata sandi, jumlah soal) supaya tidak monoton.<br>• Tombol <b>Efek</b> di pojok kanan atas mematikan animasi kalau terasa berat. Tombol <b>Suara</b> mematikan bunyi. Bunyi tik-tik makin cepat dan detak jantung muncul saat waktu menipis, jadi jangan panik!<br>• Pilih tingkat Santai, Normal, atau Ahli di menu.<br>• Selesai menjawab, selalu ada pembahasan singkat.']
+    ];
+
+    function guide(i) {
+      G.pa = 1;
+      const [t, b] = GP[i];
+      $('md').innerHTML = `
+        <div class="eb">PANDUAN ${i + 1}/${GP.length}</div>
+        <h3 style="font-size:1.5rem;margin-top:6px">${t}</h3>
+        <div>${b}</div>
+        <div class="dots">${GP.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('')}</div>
+        <div class="row" style="justify-content:space-between;margin-top:14px">
+          <button class="btn s sm" onclick="${i ? `guide(${i - 1})` : 'closeG()'}">${i ? 'Kembali' : 'Tutup'}</button>
+          <button class="btn sm" onclick="${i < GP.length - 1 ? `guide(${i + 1})` : 'closeG()'}">${i < GP.length - 1 ? 'Lanjut' : 'Siap'}</button>
+        </div>
+      `;
+      $('ov').classList.add('on');
+    }
+
+    function closeG() {
+      $('ov').classList.remove('on');
+      if (G.cur && !document.querySelector('#body .eb')) G.pa = 0;
+      else if (!G.cur) G.pa = 0;
+    }
+
+    function toMenu() {
+      const run = G.cur && G.T > 0 && !(G.gates && G.gates[5]);
+      if (!run) {
+        exitMenu();
+        return;
+      }
+      G.pa = 1;
+      $('md').innerHTML = `
+        <div class="eb">KELUAR?</div>
+        <h3 style="font-size:1.35rem;margin-top:6px">Kembali ke menu utama?</h3>
+        <p class="mu">Permainan yang sedang berjalan akan dihentikan dan progresmu hilang.</p>
+        <div class="row" style="justify-content:space-between;margin-top:12px">
+          <button class="btn s sm" onclick="closeG()">Lanjut main</button>
+          <button class="btn sm" onclick="exitMenu()">Ya, ke menu</button>
+        </div>
+      `;
+      $('ov').classList.add('on');
+    }
+
+    function exitMenu() {
+      clearInterval(G.iv);
+      drone(0);
+      document.body.classList.remove('urg');
+      closeG();
+      G = {};
+      go('home');
+    }
+
+    /* =========================================================================
+       8. INTRO SEQUENCE, INTERACTIVE CHRONOMETER & DUST CANVAS
+       ========================================================================= */
+    let introRaf = 0;
+    let dialAngle = 0;
+    let dialClicks = 0;
+
+    function syncIntroAud() {
+      const btn = $('iaud');
+      if (!btn) return;
+      const active = SND && al;
+      btn.classList.toggle('on', Boolean(active));
+      btn.textContent = !SND ? 'SUARA: MATI' : active ? 'SUARA: AKTIF' : 'SUARA: SIAP';
+    }
+
+    function toggleIntroAudio() {
+      ac();
+      if (!al) {
+        al = 1;
+        SND = true;
+        sfx('alarm');
+      } else {
+        SND = !SND;
+      }
+      $('snb').textContent = 'Suara: ' + (SND ? 'Nyala' : 'Mati');
+      syncIntroAud();
+    }
+
+    function skipIntro() {
+      const e = $('intro');
+      if (!e || e.dataset.x) return;
+      e.dataset.x = 1;
+      cancelAnimationFrame(introRaf);
+      e.style.opacity = 0;
+      e.style.transform = 'scale(1.03)';
+      setTimeout(() => e.remove(), 720);
+      if (!document.body.classList.contains('nofx')) warp();
+    }
+
+    function initChronoInteraction() {
+      const chrono = $('chrono');
+      const dial = $('cdial');
+      const degEl = $('cdeg');
+      const yearEl = $('cyear');
+      const plaque = $('cplaque');
+      if (!chrono || !dial) return;
+
+      let dragging = false;
+      let lastAngle = 0;
+      let tickAccum = 0;
+
+      const getPointerAngle = (ev) => {
+        const rect = chrono.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        return Math.atan2(ev.clientY - cy, ev.clientX - cx) * (180 / Math.PI);
+      };
+
+      const applyAngle = (deg) => {
+        dialAngle = deg;
+        dial.style.transform = `rotate(${dialAngle.toFixed(1)}deg)`;
+        const normDeg = ((Math.round(dialAngle) % 360) + 360) % 360;
+        degEl.textContent = `θ = ${String(normDeg).padStart(3, '0')}°`;
+        yearEl.textContent = 2087 - Math.floor(normDeg / 15);
+      };
+
+      chrono.addEventListener('pointerdown', (ev) => {
+        ac();
+        al = 1;
+        syncIntroAud();
+        dragging = true;
+        chrono.setPointerCapture(ev.pointerId);
+        lastAngle = getPointerAngle(ev);
+
+        dialClicks++;
+        applyAngle(dialAngle + 45);
+        tone(340 + (dialClicks % 6) * 55, 0.09, 'triangle', 0.11);
+        const notes = [
+          'KUNCI KUNINGAN BERGESER',
+          'ANOMALI TERPANTAU DI 2087',
+          'SINKRONISASI RODA GIGI...',
+          '6 GERBANG TERDETEKSI'
+        ];
+        plaque.textContent = notes[dialClicks % notes.length];
+      });
+
+      chrono.addEventListener('pointermove', (ev) => {
+        if (!dragging) return;
+        const current = getPointerAngle(ev);
+        let delta = current - lastAngle;
+        if (delta > 180) delta -= 360;
+        if (delta < -180) delta += 360;
+        lastAngle = current;
+
+        applyAngle(dialAngle + delta);
+        tickAccum += Math.abs(delta);
+        if (tickAccum >= 18) {
+          tickAccum = 0;
+          tone(880, 0.025, 'square', 0.035);
+        }
+      });
+
+      const endDrag = () => { dragging = false; };
+      chrono.addEventListener('pointerup', endDrag);
+      chrono.addEventListener('pointercancel', endDrag);
+    }
+
+    function initIntroDust() {
+      const cv = $('icv');
+      if (!cv) return;
+      const ctx = cv.getContext('2d');
+      let W = 0;
+      let H = 0;
+      let mx = 0;
+      let my = 0;
+
+      const motes = Array.from({ length: 55 }, () => ({
+        x: Math.random(),
+        y: Math.random(),
+        vx: (Math.random() - 0.5) * 0.00035,
+        vy: -0.0002 - Math.random() * 0.00045,
+        r: 0.8 + Math.random() * 1.9,
+        a: 0.15 + Math.random() * 0.45
+      }));
+
+      const resize = () => {
+        W = cv.width = window.innerWidth;
+        H = cv.height = window.innerHeight;
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      window.addEventListener('pointermove', (e) => {
+        mx = (e.clientX / (W || 1) - 0.5) * 28;
+        my = (e.clientY / (H || 1) - 0.5) * 28;
+      });
+
+      const draw = () => {
+        if (!$('intro') || $('intro').dataset.x) return;
+        introRaf = requestAnimationFrame(draw);
+
+        if (document.body.classList.contains('nofx')) {
+          ctx.clearRect(0, 0, W, H);
+          return;
+        }
+
+        ctx.clearRect(0, 0, W, H);
+
+        const beam = ctx.createRadialGradient(
+          W * 0.28 + mx,
+          H * 0.45 + my,
+          10,
+          W * 0.28,
+          H * 0.45,
+          Math.max(W, H) * 0.55
+        );
+        beam.addColorStop(0, 'rgba(212, 160, 55, 0.07)');
+        beam.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = beam;
+        ctx.fillRect(0, 0, W, H);
+
+        for (const m of motes) {
+          m.x += m.vx;
+          m.y += m.vy;
+          if (m.y < -0.05) m.y = 1.05;
+          if (m.x < -0.05) m.x = 1.05;
+          if (m.x > 1.05) m.x = -0.05;
+
+          const px = m.x * W + mx * (m.r * 0.6);
+          const py = m.y * H + my * (m.r * 0.6);
+          ctx.fillStyle = `rgba(241, 224, 185, ${m.a})`;
+          ctx.beginPath();
+          ctx.arc(px, py, m.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      };
+      draw();
+    }
+
+    function intro() {
+      const lines = [
+        ['Gerbang waktu', 'TERKUNCI', 'warn'],
+        ['Energi ruang', 'MENIPIS', 'gold'],
+        ['Jalan keluar', '6 KUNCI SANDI', 'teal'],
+        ['Hitung mundur', 'BERJALAN', 'warn']
+      ];
+
+      let i = 0;
+      const step = () => {
+        if (!$('intro') || $('intro').dataset.x) return;
+        if (i < lines.length) {
+          const [label, val, cls] = lines[i++];
+          const row = document.createElement('div');
+          row.className = 'trow';
+          row.innerHTML = `<span class="tk">${label}</span><span class="td"></span><span class="tv ${cls}">${val}</span>`;
+          $('it3').appendChild(row);
+          if (al && SND) tone(520 + i * 75, 0.05, 'triangle', 0.05);
+          setTimeout(step, 700);
+        }
+      };
+      setTimeout(step, 300);
+
+      initChronoInteraction();
+      initIntroDust();
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && $('intro') && !$('intro').dataset.x) {
+          skipIntro();
+        }
+      });
+    }
+
+    /* =========================================================================
+       9. INITIALIZATION
+       ========================================================================= */
+    ['pointerdown', 'keydown'].forEach(ev => {
+      window.addEventListener(ev, () => {
+        ac();
+        if (!al && $('intro') && !$('intro').dataset.x) {
+          al = 1;
+          sfx('alarm');
+          syncIntroAud();
+        }
+      });
+    });
+
+    buildPk();
+    initFx();
+    intro();
+  </script>
+</body>
+</html>
